@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	JSONAPI "mailing-list/API/JSON"
+	gRPCAPI "mailing-list/API/gRPC"
 	"mailing-list/dataBase"
 	"sync"
 
@@ -13,6 +14,7 @@ import (
 var arguments struct {
 	dataBasePath      string `arg:"env:MAILING_LIST__DATABASE"`
 	JSONServerAddress string `arg:"env:MAILING_LIST___JSON_SERVER__ADDRESS"`
+	gRPCServerAddress string `arg:"env:MAILING_LIST___GRPC_SERVER__ADDRESS"`
 }
 
 func main() {
@@ -26,6 +28,10 @@ func main() {
 		arguments.JSONServerAddress = ":3001"
 	}
 
+	if arguments.gRPCServerAddress == "" {
+		arguments.gRPCServerAddress = ":3002"
+	}
+
 	eMailDataBase, err := sql.Open("sqlite3", arguments.dataBasePath)
 
 	if err != nil {
@@ -36,14 +42,21 @@ func main() {
 
 	dataBase.CreateTable(eMailDataBase)
 
-	var wg sync.WaitGroup
+	var waitGroup sync.WaitGroup
 
-	wg.Add(1)
+	waitGroup.Add(1)
 	go func() {
 		log.Printf("starting JSON-server\n")
 		JSONAPI.Serve(eMailDataBase, arguments.JSONServerAddress)
-		wg.Done()
+		waitGroup.Done()
 	}()
 
-	wg.Wait()
+	waitGroup.Add(1)
+	go func() {
+		log.Printf("starting gRPC-server\n")
+		gRPCAPI.Serve(eMailDataBase, arguments.gRPCServerAddress)
+		waitGroup.Done()
+	}()
+
+	waitGroup.Wait()
 }
