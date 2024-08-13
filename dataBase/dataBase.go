@@ -84,12 +84,12 @@ func GetEMail(dataBase *sql.DB, eMail string) (*EMail, error) {
 	return nil, nil
 }
 
-type GetEmailBatchParameters struct {
-	Page  int
+type GetEMailBatchParameters struct {
 	Count int
+	Page  int
 }
 
-func GetEMailBatch(dataBase *sql.DB, parameters GetEmailBatchParameters) ([]EMail, error) {
+func GetEMailBatch(dataBase *sql.DB, parameters GetEMailBatchParameters) ([]EMail, error) {
 	var empty []EMail
 
 	rows, err := dataBase.Query(`SELECT ID, eMail, confirmed_at, opt_out FROM eMails WHERE opt_out = false ORDER BY ID ASC LIMIT ? OFFSET ?`, parameters.Count, (parameters.Page-1)*parameters.Count)

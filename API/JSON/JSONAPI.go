@@ -111,7 +111,7 @@ func GetEMailBatch(eMailDataBase *sql.DB) http.Handler {
 			return
 		}
 
-		parameters := dataBase.GetEmailBatchParameters{}
+		parameters := dataBase.GetEMailBatchParameters{}
 		fromJSON(request.Body, &parameters)
 
 		if parameters.Count <= 0 || parameters.Page <= 0 {
