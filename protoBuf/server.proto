@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "mailing-list/proto";
+
+message EMail {
+	int64 ID = 1;
+	string value = 2;
+	int64 confirmed_at = 3;
+	bool opt_out = 4;
+}
+
+message CreateEMailReQuest {string value = 1;}
+message GetEMailReQuest {string value = 1;}
+message GetEMailBatchReQuest {
+	int32 count = 1;
+	int32 page = 2;
+}
+message UpDateEMailReQuest {EMail eMail = 1;}
+message DeleteEMailReQuest {string value = 1;}
+
+message EMailResponse {optional EMail eMail = 1;}
+message EMailBatchResponse {repeated EMail eMails = 1;}
+
+service MailingListService {
+	rpc CreateEMail(CreateEMailReQuest) returns (EMailResponse) {}
+	rpc GetEMail(GetEMailReQuest) returns (EMailResponse) {}
+	rpc GetEMailBatch(GetEMailBatchReQuest) returns (EMailBatchResponse) {}
+	rpc UpDateEMail(UpDateEMailReQuest) returns (EMailResponse) {}
+	rpc DeleteEMail(DeleteEMailReQuest) returns (EMailResponse) {}
+}
