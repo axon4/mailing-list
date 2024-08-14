@@ -39,7 +39,6 @@ func main() {
 	}
 
 	defer eMailDataBase.Close()
-
 	dataBase.CreateTable(eMailDataBase)
 
 	var waitGroup sync.WaitGroup

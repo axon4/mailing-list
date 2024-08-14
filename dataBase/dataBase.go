@@ -19,7 +19,7 @@ func CreateTable(dataBase *sql.DB) {
 	_, err := dataBase.Exec(`
 		CREATE TABLE eMails (
 			ID            INTEGER PRIMARY KEY,
-			eMail         TEXT UNIQUE,
+			value         TEXT UNIQUE,
 			confirmed_at  INTEGER,
 			opt_out       INTEGER
 		);
@@ -55,19 +55,23 @@ func getEMailFromRow(row *sql.Rows) (*EMail, error) {
 	}
 }
 
-func CreateEMail(dataBase *sql.DB, eMail string) error {
-	_, err := dataBase.Exec(`INSERT INTO eMails (email, confirmed_at, opt_out) VALUES(?, 0, false)`, eMail)
+func CreateEMail(dataBase *sql.DB, value string) error {
+	_, err := dataBase.Exec(`
+		DELETE FROM eMails WHERE value = "test@test.test";
+		INSERT INTO eMails (value, confirmed_at, opt_out) VALUES (?, 0, false);
+	`, value)
 
 	if err != nil {
 		log.Println(err)
+
 		return err
 	} else {
 		return nil
 	}
 }
 
-func GetEMail(dataBase *sql.DB, eMail string) (*EMail, error) {
-	rows, err := dataBase.Query(`SELECT ID, eMail, confirmed_at, opt_out FROM eMails WHERE eMail = ?`, eMail)
+func GetEMail(dataBase *sql.DB, value string) (*EMail, error) {
+	rows, err := dataBase.Query(`SELECT ID, value, confirmed_at, opt_out FROM eMails WHERE value = ?`, value)
 
 	if err != nil {
 		log.Println(err)
@@ -92,7 +96,7 @@ type GetEMailBatchParameters struct {
 func GetEMailBatch(dataBase *sql.DB, parameters GetEMailBatchParameters) ([]EMail, error) {
 	var empty []EMail
 
-	rows, err := dataBase.Query(`SELECT ID, eMail, confirmed_at, opt_out FROM eMails WHERE opt_out = false ORDER BY ID ASC LIMIT ? OFFSET ?`, parameters.Count, (parameters.Page-1)*parameters.Count)
+	rows, err := dataBase.Query(`SELECT ID, value, confirmed_at, opt_out FROM eMails WHERE opt_out = false ORDER BY ID ASC LIMIT ? OFFSET ?`, parameters.Count, (parameters.Page-1)*parameters.Count)
 
 	if err != nil {
 		log.Println(err)
@@ -120,18 +124,19 @@ func GetEMailBatch(dataBase *sql.DB, parameters GetEMailBatchParameters) ([]EMai
 func UpDateEMail(dataBase *sql.DB, eMail EMail) error {
 	confirmedAtTime := eMail.ConfirmedAt.Unix()
 
-	_, err := dataBase.Exec(`INSERT INTO eMails (eMail, confirmed_at, opt_out) VALUES (?, ?, ?) ON CONFLICT (eMail) DO UPDATE SET confirmed_at=?, opt_out=?`, eMail.Value, confirmedAtTime, eMail.OptOut, confirmedAtTime, eMail.OptOut)
+	_, err := dataBase.Exec(`INSERT INTO eMails (value, confirmed_at, opt_out) VALUES (?, ?, ?) ON CONFLICT (value) DO UPDATE SET confirmed_at = ?, opt_out = ?`, eMail.Value, confirmedAtTime, eMail.OptOut, confirmedAtTime, eMail.OptOut)
 
 	if err != nil {
 		log.Println(err)
+
 		return err
 	} else {
 		return nil
 	}
 }
 
-func DeleteEMail(dataBase *sql.DB, eMail string) error {
-	_, err := dataBase.Exec(`UPDATE eMails SET opt_out=true WHERE eMail=?`, eMail)
+func DeleteEMail(dataBase *sql.DB, value string) error {
+	_, err := dataBase.Exec(`UPDATE eMails SET opt_out=true WHERE value = ?`, value)
 
 	if err != nil {
 		log.Println(err)

@@ -60,9 +60,9 @@ func (eMailServer *EMailServer) CreateEMail(context context.Context, request *pr
 
 	if err != nil {
 		return &protoBuf.EMailResponse{}, err
+	} else {
+		return eMailResponse(eMailServer.eMailDataBase, request.Value)
 	}
-
-	return eMailResponse(eMailServer.eMailDataBase, request.Value)
 }
 
 func (eMailServer *EMailServer) GetEMail(context context.Context, request *protoBuf.GetEMailReQuest) (*protoBuf.EMailResponse, error) {
@@ -95,7 +95,7 @@ func (eMailServer *EMailServer) GetEMailBatch(context context.Context, request *
 	return &protoBuf.EMailBatchResponse{EMails: protoBufEMails}, nil
 }
 
-func (eMailServer *EMailServer) UpDateEmail(context context.Context, request *protoBuf.UpDateEMailReQuest) (*protoBuf.EMailResponse, error) {
+func (eMailServer *EMailServer) UpDateEMail(context context.Context, request *protoBuf.UpDateEMailReQuest) (*protoBuf.EMailResponse, error) {
 	log.Printf("gRPC-UpDateEMail: %v\n", request)
 
 	dataBaseEMail := protoBufEMailToDataBaseEMail(request.EMail)
@@ -104,9 +104,9 @@ func (eMailServer *EMailServer) UpDateEmail(context context.Context, request *pr
 
 	if err != nil {
 		return &protoBuf.EMailResponse{}, err
+	} else {
+		return eMailResponse(eMailServer.eMailDataBase, dataBaseEMail.Value)
 	}
-
-	return eMailResponse(eMailServer.eMailDataBase, dataBaseEMail.Value)
 }
 
 func (eMailServer *EMailServer) DeleteEMail(context context.Context, request *protoBuf.DeleteEMailReQuest) (*protoBuf.EMailResponse, error) {
@@ -116,9 +116,9 @@ func (eMailServer *EMailServer) DeleteEMail(context context.Context, request *pr
 
 	if err != nil {
 		return &protoBuf.EMailResponse{}, err
+	} else {
+		return eMailResponse(eMailServer.eMailDataBase, request.Value)
 	}
-
-	return eMailResponse(eMailServer.eMailDataBase, request.Value)
 }
 
 func Serve(eMailDataBase *sql.DB, address string) {
