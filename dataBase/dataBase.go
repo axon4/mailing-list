@@ -36,6 +36,21 @@ func CreateTable(dataBase *sql.DB) {
 	}
 }
 
+func CreateEMail(dataBase *sql.DB, value string) error {
+	_, err := dataBase.Exec(`
+		DELETE FROM eMails WHERE value = "test@test.test";
+		INSERT INTO eMails (value, confirmed_at, opt_out) VALUES (?, 0, false);
+	`, value)
+
+	if err != nil {
+		log.Println(err)
+
+		return err
+	} else {
+		return nil
+	}
+}
+
 func getEMailFromRow(row *sql.Rows) (*EMail, error) {
 	var ID int64
 	var value string
@@ -52,21 +67,6 @@ func getEMailFromRow(row *sql.Rows) (*EMail, error) {
 		confirmedAtTime := time.Unix(confirmedAt, 0)
 
 		return &EMail{ID: ID, Value: value, ConfirmedAt: &confirmedAtTime, OptOut: optOut}, nil
-	}
-}
-
-func CreateEMail(dataBase *sql.DB, value string) error {
-	_, err := dataBase.Exec(`
-		DELETE FROM eMails WHERE value = "test@test.test";
-		INSERT INTO eMails (value, confirmed_at, opt_out) VALUES (?, 0, false);
-	`, value)
-
-	if err != nil {
-		log.Println(err)
-
-		return err
-	} else {
-		return nil
 	}
 }
 

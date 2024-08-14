@@ -12,27 +12,27 @@ import (
 )
 
 var arguments struct {
-	dataBasePath      string `arg:"env:MAILING_LIST__DATABASE"`
-	JSONServerAddress string `arg:"env:MAILING_LIST___JSON_SERVER__ADDRESS"`
-	gRPCServerAddress string `arg:"env:MAILING_LIST___GRPC_SERVER__ADDRESS"`
+	dataBase   string `arg:"env:MAILING_LIST__DATABASE"`
+	JSONServer string `arg:"env:MAILING_LIST__JSON_SERVER"`
+	gRPCServer string `arg:"env:MAILING_LIST__GRPC_SERVER"`
 }
 
 func main() {
 	arg.MustParse(&arguments)
 
-	if arguments.dataBasePath == "" {
-		arguments.dataBasePath = "dataBase.db"
+	if arguments.dataBase == "" {
+		arguments.dataBase = "dataBase.db"
 	}
 
-	if arguments.JSONServerAddress == "" {
-		arguments.JSONServerAddress = ":3001"
+	if arguments.JSONServer == "" {
+		arguments.JSONServer = ":3001"
 	}
 
-	if arguments.gRPCServerAddress == "" {
-		arguments.gRPCServerAddress = ":3002"
+	if arguments.gRPCServer == "" {
+		arguments.gRPCServer = ":3002"
 	}
 
-	eMailDataBase, err := sql.Open("sqlite3", arguments.dataBasePath)
+	eMailDataBase, err := sql.Open("sqlite3", arguments.dataBase)
 
 	if err != nil {
 		log.Fatal(err)
@@ -46,14 +46,14 @@ func main() {
 	waitGroup.Add(1)
 	go func() {
 		log.Printf("starting JSON-server\n")
-		JSONAPI.Serve(eMailDataBase, arguments.JSONServerAddress)
+		JSONAPI.Serve(eMailDataBase, arguments.JSONServer)
 		waitGroup.Done()
 	}()
 
 	waitGroup.Add(1)
 	go func() {
 		log.Printf("starting gRPC-server\n")
-		gRPCAPI.Serve(eMailDataBase, arguments.gRPCServerAddress)
+		gRPCAPI.Serve(eMailDataBase, arguments.gRPCServer)
 		waitGroup.Done()
 	}()
 
