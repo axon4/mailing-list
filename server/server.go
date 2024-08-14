@@ -21,7 +21,7 @@ func main() {
 	arg.MustParse(&arguments)
 
 	if arguments.dataBase == "" {
-		arguments.dataBase = "dataBase.db"
+		arguments.dataBase = "dataBase.sqlite"
 	}
 
 	if arguments.JSONServer == "" {
