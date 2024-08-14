@@ -143,7 +143,7 @@ func UpDateEMail(eMailDataBase *sql.DB) http.Handler {
 			return
 		} else {
 			returnJSON(writer, func() (interface{}, error) {
-				log.Printf("JSON-UpDateEMail: %v\n", eMail.Value)
+				log.Printf("JSON-UpDateEMail: %v %v\n", eMail.Value, eMail.ConfirmedAt)
 
 				return dataBase.GetEMail(eMailDataBase, eMail.Value)
 			})
